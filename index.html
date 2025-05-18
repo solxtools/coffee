@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Beanpresso - Coffee Barista Game</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Righteous&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            touch-action: manipulation;
+        }
+        
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, #6F4E37, #8B5A2B, #5A3921, #3C280D);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            z-index: -2;
+        }
+        
+        .coffee-beans {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .coffee-bean {
+            position: absolute;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            animation: fall linear infinite;
+            opacity: 0.6;
+        }
+        
+        .steam {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            filter: blur(15px);
+            animation: rise linear infinite;
+        }
+        
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(calc(100vh + 100px)) rotate(720deg);
+                opacity: 0.6;
+            }
+        }
+        
+        @keyframes rise {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+                width: 30px;
+                height: 30px;
+            }
+            50% {
+                opacity: 0.6;
+                width: 50px;
+                height: 50px;
+            }
+            100% {
+                transform: translateY(-200px) translateX(var(--translate-x));
+                opacity: 0;
+                width: 80px;
+                height: 80px;
+            }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            padding: 0 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .logo {
+            width: 150px;
+            height: 150px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo svg {
+            width: 80%;
+            height: auto;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+        
+        h1 {
+            font-family: 'Righteous', cursive;
+            font-size: 3.5rem;
+            margin: 10px 0 5px;
+            text-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #E6BC8D, #FFF, #E6BC8D);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: title-shine 3s linear infinite;
+        }
+        
+        @keyframes title-shine {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 200% 50%;
+            }
+        }
+        
+        .tagline {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+            color: #E6BC8D;
+        }
+        
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+            max-width: 600px;
+        }
+        
+        .countdown {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .countdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .countdown-number {
+            font-size: 2rem;
+            font-weight: bold;
+            background-color: rgba(60, 40, 13, 0.7);
+            border-radius: 10px;
+            padding: 10px 20px;
+            min-width: 70px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid #E6BC8D;
+            color: #E6BC8D;
+        }
+        
+        .countdown-label {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #E6BC8D;
+        }
+        
+        .game-features {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 650px;
+        }
+        
+        .feature {
+            background-color: rgba(60, 40, 13, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            width: 130px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            border: 1px solid rgba(230, 188, 141, 0.5);
+        }
+        
+        .feature:hover, .feature:active {
+            transform: translateY(-5px);
+            background-color: rgba(111, 78, 55, 0.7);
+        }
+        
+        .feature-icon {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #E6BC8D;
+        }
+        
+        .feature-text {
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+        
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(230, 188, 141, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            color: #E6BC8D;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .social-icon:hover, .social-icon:active {
+            transform: translateY(-5px) rotate(10deg);
+            background-color: rgba(230, 188, 141, 0.4);
+            color: #FFF;
+        }
+        
+        .footer {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            max-width: 900px;
+            margin-top: auto;
+            padding: 20px 0;
+        }
+        
+        .coffee-cup {
+            width: 80px;
+            height: 100px;
+            animation: cup-wobble 3s ease-in-out infinite;
+            margin-left: 20px;
+        }
+        
+        @keyframes cup-wobble {
+            0%, 100% {
+                transform: rotate(-5deg);
+            }
+            50% {
+                transform: rotate(5deg);
+            }
+        }
+        
+        .coffee-machine {
+            width: 100px;
+            height: 120px;
+            animation: machine-work 4s ease-in-out infinite;
+            margin-right: 20px;
+        }
+        
+        @keyframes machine-work {
+            0%, 40%, 60%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .game-features {
+                max-width: 580px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                justify-content: flex-start;
+                padding-top: 40px;
+            }
+            
+            .logo {
+                width: 120px;
+                height: 120px;
+                margin-bottom: 15px;
+            }
+            
+            h1 {
+                font-size: 2.8rem;
+            }
+            
+            .tagline {
+                font-size: 1.1rem;
+            }
+            
+            p {
+                font-size: 1rem;
+                margin-bottom: 20px;
+            }
+            
+            .countdown {
+                gap: 10px;
+            }
+            
+            .countdown-number {
+                font-size: 1.6rem;
+                min-width: 60px;
+                padding: 8px 15px;
+            }
+            
+            .countdown-label {
+                font-size: 0.8rem;
+            }
+            
+            .game-features {
+                gap: 10px;
+                max-width: 450px;
+            }
+            
+            .feature {
+                width: 120px;
+                padding: 10px;
+            }
+            
+            .feature-icon {
+                font-size: 1.6rem;
+            }
+            
+            .feature-text {
+                font-size: 0.8rem;
+            }
+            
+            .coffee-cup, .coffee-machine {
+                width: 70px;
+                height: 90px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+            
+            h1 {
+                font-size: 2.3rem;
+            }
+            
+            .tagline {
+                font-size: 1rem;
+            }
+            
+            p {
+                font-size: 0.9rem;
+                margin-bottom: 15px;
+            }
+            
+            .countdown-number {
+                font-size: 1.4rem;
+                min-width: 50px;
+                padding: 7px 12px;
+            }
+            
+            .countdown-label {
+                font-size: 0.7rem;
+            }
+            
+            .game-features {
+                gap: 8px;
+                max-width: 280px;
+            }
+            
+            .feature {
+                width: 130px;
+                padding: 10px;
+            }
+            
+            .social-icon {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .coffee-cup, .coffee-machine {
+                width: 60px;
+                height: 70px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding-top: 30px;
+            }
+            
+            .logo {
+                width: 90px;
+                height: 90px;
+                margin-bottom: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+                margin: 5px 0;
+            }
+            
+            .tagline {
+                font-size: 0.9rem;
+            }
+            
+            p {
+                font-size: 0.85rem;
+                margin-bottom: 10px;
+            }
+            
+            .countdown {
+                margin: 15px 0;
+            }
+            
+            .countdown-number {
+                font-size: 1.2rem;
+                min-width: 45px;
+                padding: 6px 10px;
+            }
+            
+            .feature {
+                width: 120px;
+                padding: 8px;
+            }
+            
+            .feature-icon {
+                font-size: 1.5rem;
+                margin-bottom: 5px;
+            }
+            
+            .feature-text {
+                font-size: 0.75rem;
+            }
+            
+            .footer {
+                padding: 10px 0;
+            }
+            
+            .coffee-cup, .coffee-machine {
+                width: 50px;
+                height: 60px;
+            }
+        }
+        
+        @media (max-height: 700px) and (min-width: 576px) {
+            .container {
+                justify-content: flex-start;
+                padding-top: 20px;
+            }
+            
+            .logo {
+                width: 110px;
+                height: 110px;
+                margin-bottom: 10px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            p {
+                margin-bottom: 15px;
+            }
+            
+            .countdown {
+                margin: 10px 0 20px;
+            }
+            
+            .game-features {
+                margin-bottom: 20px;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .coffee-cup, .coffee-machine {
+                display: none;
+            }
+        }
+        
+        /* Prevent text selection */
+        .no-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <div class="coffee-beans" id="coffee-beans"></div>
+    
+    <div class="container">
+        <div class="logo">
+            <svg viewBox="0 0 100 100" width="100%" height="100%">
+                <circle cx="50" cy="50" r="45" fill="#6F4E37" stroke="#E6BC8D" stroke-width="2" />
+                <path d="M30,35 Q50,20 70,35 L70,60 Q50,75 30,60 Z" fill="#3C280D" stroke="#E6BC8D" stroke-width="2" />
+                <ellipse cx="50" cy="35" rx="20" ry="5" fill="none" stroke="#E6BC8D" stroke-width="2" />
+                <path d="M75,45 Q85,50 75,55" fill="none" stroke="#E6BC8D" stroke-width="2" stroke-linecap="round" />
+                <path d="M25,45 Q15,50 25,55" fill="none" stroke="#E6BC8D" stroke-width="2" stroke-linecap="round" />
+                <path d="M40,45 Q50,55 60,45" fill="none" stroke="#E6BC8D" stroke-width="2" stroke-linecap="round" />
+            </svg>
+        </div>
+        
+        <h1 class="no-select">BEANPRESSO</h1>
+        <div class="tagline no-select">Master the Art of Coffee</div>
+        <p class="no-select">A captivating barista simulator game where you'll grind, brew, and create the perfect coffee drinks while building your own café empire!</p>
+        
+        <div class="game-features">
+            <div class="feature">
+                <div class="feature-icon">🏆</div>
+                <div class="feature-text">Unlock Achievements</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🌍</div>
+                <div class="feature-text">Global Leaderboards</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🛒</div>
+                <div class="feature-text">Customize Your Café</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🧩</div>
+                <div class="feature-text">Challenging Levels</div>
+            </div>
+        </div>
+        
+        <div class="countdown no-select">
+            <div class="countdown-item">
+                <div class="countdown-number" id="days">00</div>
+                <div class="countdown-label">DAYS</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="hours">00</div>
+                <div class="countdown-label">HOURS</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="minutes">00</div>
+                <div class="countdown-label">MINUTES</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="seconds">00</div>
+                <div class="countdown-label">SECONDS</div>
+            </div>
+        </div>
+        
+        <div class="social-icons">
+            <div class="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                </svg>
+            </div>
+            <div class="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                </svg>
+            </div>
+            <div class="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+            </div>
+            <div class="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
+                    <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+                </svg>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <!-- Coffee cup animation -->
+            <div class="coffee-cup">
+                <svg viewBox="0 0 100 120" width="100%" height="100%">
+                    <path d="M25,40 L25,100 Q50,110 75,100 L75,40 Z" fill="#3C280D" stroke="#E6BC8D" stroke-width="2" />
+                    <path d="M20,40 L80,40" stroke="#E6BC8D" stroke-width="2" />
+                    <path d="M30,30 Q50,20 70,30 L70,40 L30,40 Z" fill="#6F4E37" stroke="#E6BC8D" stroke-width="2" />
+                    <path d="M75,60 Q95,70 90,90 Q85,100 75,100" fill="none" stroke="#E6BC8D" stroke-width="2" />
+                    <ellipse cx="50" cy="50" rx="15" ry="5" fill="#8B5A2B" stroke="#E6BC8D" stroke-width="1" />
+                    <!-- Steam -->
+                    <path id="steam1" d="M40,30 Q35,20 40,10" stroke="#E6BC8D" stroke-width="2" fill="none" opacity="0.7">
+                        <animate attributeName="d" values="M40,30 Q35,20 40,10;M40,30 Q45,20 40,10;M40,30 Q35,20 40,10" dur="3s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="0.7;0.3;0.7" dur="3s" repeatCount="indefinite" />
+                    </path>
+                    <path id="steam2" d="M50,30 Q55,15 50,5" stroke="#E6BC8D" stroke-width="2" fill="none" opacity="0.5">
+                        <animate attributeName="d" values="M50,30 Q55,15 50,5;M50,30 Q45,15 50,5;M50,30 Q55,15 50,5" dur="4s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="0.5;0.2;0.5" dur="4s" repeatCount="indefinite" />
+                    </path>
+                    <path id="steam3" d="M60,30 Q65,20 60,10" stroke="#E6BC8D" stroke-width="2" fill="none" opacity="0.6">
+                        <animate attributeName="d" values="M60,30 Q65,20 60,10;M60,30 Q55,20 60,10;M60,30 Q65,20 60,10" dur="3.5s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="0.6;0.3;0.6" dur="3.5s" repeatCount="indefinite" />
+                    </path>
+                </svg>
+            </div>
+            
+            <!-- Coffee machine animation -->
+            <div class="coffee-machine">
+                <svg viewBox="0 0 120 150" width="100%" height="100%">
+                    <rect x="20" y="50" width="80" height="80" rx="5" fill="#3C280D" stroke="#E6BC8D" stroke-width="2" />
+                    <rect x="30" y="20" width="60" height="30" rx="5" fill="#6F4E37" stroke="#E6BC8D" stroke-width="2" />
+                    <rect x="35" y="60" width="50" height="30" rx="2" fill="#5A3921" stroke="#E6BC8D" stroke-width="1" />
+                    <circle cx="60" cy="110" r="10" fill="#8B5A2B" stroke="#E6BC8D" stroke-width="1" />
+                    <rect x="45" y="130" width="30" height="5" fill="#6F4E37" stroke="#E6BC8D" stroke-width="1" />
+                    <rect x="55" y="135" width="10" height="15" fill="#5A3921" stroke="#E6BC8D" stroke-width="1" />
+                    <path d="M60,100 L60,85 M50,85 L70,85" stroke="#E6BC8D" stroke-width="2" fill="none" />
+                    <!-- Coffee dripping -->
+                    <path id="drip" d="M60,100 L60,120" stroke="#8B5A2B" stroke-width="3" stroke-dasharray="2 6" opacity="0.8">
+                        <animate attributeName="stroke-dashoffset" values="0;8" dur="1.5s" repeatCount="indefinite" />
+                    </path>
+                    <!-- Buttons -->
+                    <circle cx="45" cy="45" r="5" fill="#E6BC8D" />
+                    <circle cx="60" cy="45" r="5" fill="#E6BC8D" />
+                    <circle cx="75" cy="45" r="5" fill="#E6BC8D" />
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Create coffee beans animation
+        function createCoffeeBeans() {
+            const container = document.getElementById('coffee-beans');
+            // Adjust bean count based on device performance
+            const isMobile = window.innerWidth <= 768;
+            const beanCount = isMobile ? 15 : 30;
+            
+            // Create coffee bean SVG template
+            const beanSVG = `
+                <svg viewBox="0 0 50 30" width="100%" height="100%">
+                    <ellipse cx="25" cy="15" rx="20" ry="10" fill="#6F4E37" stroke="#E6BC8D" stroke-width="1" />
+                    <path d="M25,5 Q25,15 25,25" stroke="#E6BC8D" stroke-width="1" fill="none" />
+                </svg>
+            `;
+            
+            // Create steam template
+            const createSteam = () => {
+                const steam = document.createElement('div');
+                steam.classList.add('steam');
+                
+                // Random position
+                const posX = 20 + Math.random() * 60; // 20-80% from left
+                steam.style.left = `${posX}%`;
+                steam.style.bottom = `${10 + Math.random() * 20}%`; // 10-30% from bottom
+                
+                // Random animation duration
+                const duration = 3 + Math.random() * 3; // 3-6 seconds
+                steam.style.animationDuration = `${duration}s`;
+                
+                // Random horizontal drift
+                const translateX = -50 + Math.random() * 100; // -50px to 50px
+                steam.style.setProperty('--translate-x', `${translateX}px`);
+                
+                return steam;
+            };
+            
+            // Add coffee beans
+            for (let i = 0; i < beanCount; i++) {
+                const bean = document.createElement('div');
+                bean.classList.add('coffee-bean');
+                
+                // Set bean size randomly
+                const size = isMobile ? 
+                    (20 + Math.random() * 15) : // 20-35px for mobile
+                    (30 + Math.random() * 20);  // 30-50px for desktop
+                bean.style.width = `${size}px`;
+                bean.style.height = `${size * 0.6}px`;
+                
+                // Set position randomly across screen width
+                const posX = Math.random() * 100;
+                bean.style.left = `${posX}%`;
+                
+                // Set random animation duration
+                const duration = isMobile ?
+                    (4 + Math.random() * 6) : // 4-10 seconds for mobile
+                    (5 + Math.random() * 10); // 5-15 seconds for desktop
+                bean.style.animationDuration = `${duration}s`;
+                
+                // Set random animation delay
+                const delay = Math.random() * 15;
+                bean.style.animationDelay = `${delay}s`;
+                
+                // Add SVG content
+                bean.innerHTML = beanSVG;
+                
+                container.appendChild(bean);
+            }
+            
+            // Add steam animations
+            const steamCount = isMobile ? 5 : 10;
+            for (let i = 0; i < steamCount; i++) {
+                const steam = createSteam();
+                container.appendChild(steam);
+                
+                // Regenerate steam when animation ends
+                steam.addEventListener('animationend', () => {
+                    container.removeChild(steam);
+                    container.appendChild(createSteam());
+                });
+            }
+        }
+        
+        // Countdown timer
+        function startCountdown() {
+            // Launch date - 30 days from now
+            const launchDate = new Date();
+            launchDate.setDate(launchDate.getDate() + 30);
+            
+            const daysElement = document.getElementById('days');
+            const hoursElement = document.getElementById('hours');
+            const minutesElement = document.getElementById('minutes');
+            const secondsElement = document.getElementById('seconds');
+            
+            function updateCountdown() {
+                const currentDate = new Date();
+                const timeDifference = launchDate - currentDate;
+                
+                // If past launch date
+                if (timeDifference <= 0) {
+                    daysElement.textContent = '00';
+                    hoursElement.textContent = '00';
+                    minutesElement.textContent = '00';
+                    secondsElement.textContent = '00';
+                    return;
+                }
+                
+                const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+                
+                daysElement.textContent = days < 10 ? `0${days}` : days;
+                hoursElement.textContent = hours < 10 ? `0${hours}` : hours;
+                minutesElement.textContent = minutes < 10 ? `0${minutes}` : minutes;
+                secondsElement.textContent = seconds < 10 ? `0${seconds}` : seconds;
+            }
+            
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        }
+        
+        // Handle orientation change and resize
+        function handleResize() {
+            // Reinitialize beans if orientation changes
+            const container = document.getElementById('coffee-beans');
+            container.innerHTML = '';
+            createCoffeeBeans();
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createCoffeeBeans();
+            startCountdown();
+            
+            // Add touch effects to features
+            const features = document.querySelectorAll('.feature');
+            features.forEach(feature => {
+                feature.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.95)';
+                }, {passive: true});
+                
+                feature.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-5px)';
+                    }, 100);
+                }, {passive: true});
+            });
+            
+            // Add touch effects to social icons
+            const socialIcons = document.querySelectorAll('.social-icon');
+            socialIcons.forEach(icon => {
+                icon.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.9)';
+                }, {passive: true});
+                
+                icon.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-5px) rotate(10deg)';
+                    }, 100);
+                }, {passive: true});
+            });
+            
+            // Handle resize and orientation change
+            window.addEventListener('resize', handleResize);
+            window.addEventListener('orientationchange', handleResize);
+            
+            // Prevent page zoom on double tap
+            document.addEventListener('touchstart', function(event) {
+                if (event.touches.length > 1) {
+                    event.preventDefault();
+                }
+            }, { passive: false });
+            
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function(event) {
+                const now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+        });
+    </script>
+</body>
+</html>
